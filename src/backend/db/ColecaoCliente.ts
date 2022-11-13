@@ -1,13 +1,13 @@
 import firebase from '../config';
-import ClienteRepositorio from '../../core/ClienteRepositorio';
 import Cliente from '../../core/Cliente';
+import ClienteRepositorio from '../../core/ClienteRepositorio';
 
 export default class ColecaoCliente implements ClienteRepositorio {
   #conversor = {
-    toFirestore(Cliente: Cliente) {
+    toFirestore(cliente: Cliente) {
       return {
-        nome: Cliente.nome,
-        idade: Cliente.idade,
+        nome: cliente.nome,
+        idade: cliente.idade,
       };
     },
     fromFirestore(
@@ -29,13 +29,16 @@ export default class ColecaoCliente implements ClienteRepositorio {
       return doc.data();
     }
   }
+
   async excluir(cliente: Cliente): Promise<void> {
     return this.colecao().doc(cliente.id).delete();
   }
+
   async obterTodos(): Promise<Cliente[]> {
     const query = await this.colecao().get();
-    return query.docs.map((doc) => doc.data());
+    return query.docs.map((doc) => doc.data()) ?? [];
   }
+
   private colecao() {
     return firebase.firestore().collection('clientes').withConverter(this.#conversor);
   }
